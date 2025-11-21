@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>3D Models Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 0.5s ease;
+        }
+        /* Animated Background */
+        
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            overflow: hidden;
+        }
+        
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.2) 0%, transparent 40%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+        }
+        /* Floating Particles */
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float linear infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        /* Navbar */
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .navbar a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .navbar a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #7c3aed, #ec4899);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .navbar a:hover::after {
+            width: 80%;
+        }
+        
+        .navbar a:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        /* Container */
+        
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 3rem 2rem;
+        }
+        /* Header */
+        
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%,
+            100% {
+                filter: brightness(1);
+            }
+            50% {
+                filter: brightness(1.2);
+            }
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+        /* Controls Card */
+        
+        .controls-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        label {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        select {
+            padding: 0.9rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            min-width: 250px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 24px;
+        }
+        
+        select:hover,
+        select:focus {
+            border-color: rgba(124, 58, 237, 0.5);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+            outline: none;
+        }
+        
+        select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+        /* Buttons */
+        
+        .btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        /* Viewer */
+        
+        .viewer-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .viewer-header {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .viewer-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .viewer-dot.red {
+            background: #ff5f57;
+        }
+        
+        .viewer-dot.yellow {
+            background: #febc2e;
+        }
+        
+        .viewer-dot.green {
+            background: #28c840;
+        }
+        
+        #viewer {
+            width: 100%;
+            height: 550px;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .viewer-placeholder {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .viewer-placeholder svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        /* Dark Mode Toggle */
+        
+        #darkModeToggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        #darkModeToggle:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+        
+        #darkModeToggle svg {
+            width: 24px;
+            height: 24px;
+        }
+        /* Light Mode */
+        
+        body.light .bg-animation {
+            background: linear-gradient(135deg, #e0e7ff 0%, #fce7f3 50%, #dbeafe 100%);
+        }
+        
+        body.light .bg-animation::before {
+            background: radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.15) 0%, transparent 40%);
+        }
+        
+        body.light .navbar {
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light .navbar a {
+            color: #1e293b;
+        }
+        
+        body.light h1 {
+            background: linear-gradient(135deg, #1e293b 0%, #7c3aed 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+        
+        body.light .subtitle {
+            color: rgba(0, 0, 0, 0.6);
+        }
+        
+        body.light .controls-card,
+        body.light .viewer-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light label {
+            color: #1e293b;
+        }
+        
+        body.light select {
+            background: rgba(255, 255, 255, 0.8);
+            color: #1e293b;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%231e293b' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        }
+        
+        body.light .btn-secondary {
+            color: #1e293b;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        
+        body.light .viewer-header {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        body.light #viewer {
+            background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+        }
+        
+        body.light .particle {
+            background: rgba(124, 58, 237, 0.3) !important;
+        }
+        /* Responsive */
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .controls-card {
+                padding: 1.5rem;
+            }
+            select {
+                min-width: 200px;
+            }
+            #viewer {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="archive.html">Archive</a></li>
+            <li><a href="models.html">3D Models</a></li>
+            <li><a href="quiz.html">Quiz</a></li>
+        </ul>
+    </nav>
+
+    <!-- Dark Mode Toggle -->
+    <button id="darkModeToggle" aria-label="Toggle dark mode">
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+        <svg id="sunIcon" style="display:none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+    </button>
+
+    <!-- Main Content -->
+    <main class="container" role="main">
+        <h1>Explore 3D Heritage Models</h1>
+        <p class="subtitle">Discover and interact with stunning 3D cultural artifacts</p>
+
+        <!-- Controls -->
+        <div class="controls-card">
+            <div class="control-group">
+                <label for="modelSelect">Select a 3D model</label>
+                <select id="modelSelect" aria-label="Select a 3D model to view">
+                    <option value="">Choose a model...</option>
+                    <option value="ancient-vase">Ancient Greek Vase</option>
+                    <option value="roman-bust">Roman Emperor Bust</option>
+                    <option value="egyptian-sphinx">Egyptian Sphinx</option>
+                    <option value="medieval-sword">Medieval Sword</option>
+                    <option value="aztec-calendar">Aztec Calendar Stone</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="downloadBtn" aria-label="Download the selected 3D model">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download Model
+            </button>
+            <button class="btn btn-secondary" id="fullscreenBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+                Fullscreen
+            </button>
+        </div>
+
+        <!-- 3D Viewer -->
+        <div class="viewer-card">
+            <div class="viewer-header">
+                <span class="viewer-dot red"></span>
+                <span class="viewer-dot yellow"></span>
+                <span class="viewer-dot green"></span>
+            </div>
+            <div id="viewer" role="region" aria-label="3D model viewer">
+                <div class="viewer-placeholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                    </svg>
+                    <p>Select a model to begin exploring</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const bg = document.getElementById('bgAnimation');
+            const colors = ['rgba(124, 58, 237, 0.6)', 'rgba(236, 72, 153, 0.6)', 'rgba(59, 130, 246, 0.6)', 'rgba(255, 255, 255, 0.4)'];
+
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 8 + 4;
+                particle.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${Math.random() * 100}%;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    animation-duration: ${Math.random() * 15 + 10}s;
+                    animation-delay: ${Math.random() * 5}s;
+                `;
+                bg.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Dark mode toggle
+        const toggle = document.getElementById('darkModeToggle');
+        const moonIcon = document.getElementById('moonIcon');
+        const sunIcon = document.getElementById('sunIcon');
+
+        toggle.addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            const isLight = document.body.classList.contains('light');
+            moonIcon.style.display = isLight ? 'none' : 'block';
+            sunIcon.style.display = isLight ? 'block' : 'none';
+        });
+
+        // Fullscreen toggle
+        document.getElementById('fullscreenBtn').addEventListener('click', () => {
+            const viewer = document.querySelector('.viewer-card');
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                viewer.requestFullscreen();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Archive - Cultural Heritage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* Animated background particles */
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 40, 200, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255, 100, 50, 0.15) 0%, transparent 50%), radial-gradient(circle at 40% 20%, rgba(50, 150, 255, 0.15) 0%, transparent 50%);
+            animation: bgShift 15s ease infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes bgShift {
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
+        }
+        /* Glassmorphism navbar */
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.2rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+        
+        .navbar a:hover {
+            color: #feca57;
+            transform: translateY(-2px);
+        }
+        
+        .navbar a:hover::after {
+            width: 100%;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            padding: 3rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        /* Hero header */
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+        /* Control panel */
+        
+        .controls {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease 0.3s both;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        #searchInput,
+        #filterSelect {
+            padding: 0.8rem 1.2rem;
+            min-width: 280px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        #searchInput::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        #searchInput:focus,
+        #filterSelect:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        #filterSelect option {
+            background: #1a1a2e;
+            color: white;
+        }
+        /* Gallery grid */
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .item {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+        
+        .item:hover::before {
+            opacity: 1;
+        }
+        
+        .item:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        
+        .item-image-container {
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+        
+        .item:hover img {
+            transform: scale(1.15) rotate(2deg);
+        }
+        
+        .item-content {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .item h3 {
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .item p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .item-category {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* Animation for items */
+        
+        .item {
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeUp 0.6s forwards;
+        }
+        
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .item:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        
+        .item:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .item:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        
+        .item:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+        
+        .item:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+        
+        .item:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+        /* Dark mode toggle */
+        
+        #darkModeToggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        #darkModeToggle:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+        /* Light mode */
+        
+        body.light {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #1a1a2e;
+        }
+        
+        body.light::before {
+            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255, 100, 50, 0.08) 0%, transparent 50%);
+        }
+        
+        body.light .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        body.light .navbar a {
+            color: #1a1a2e;
+        }
+        
+        body.light .navbar a:hover {
+            color: #667eea;
+        }
+        
+        body.light .item {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        
+        body.light .item h3,
+        body.light .subtitle {
+            color: #1a1a2e;
+        }
+        
+        body.light .item p {
+            color: #4a4a4a;
+        }
+        
+        body.light #searchInput,
+        body.light #filterSelect {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #1a1a2e;
+        }
+        
+        body.light #searchInput::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+        }
+        /* Responsive */
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .navbar ul {
+                gap: 1.5rem;
+            }
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.5rem;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            #searchInput,
+            #filterSelect {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="archive.html">Archive</a></li>
+            <li><a href="models.html">3D Models</a></li>
+            <li><a href="quiz.html">Quiz</a></li>
+        </ul>
+    </nav>
+
+    <button id="darkModeToggle">☀️ Light Mode</button>
+
+    <main class="container" role="main">
+        <div class="header-section">
+            <h1>Archive Gallery</h1>
+            <p class="subtitle">Explore our curated collection of cultural treasures</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="filterSelect">Filter by Category</label>
+                <select id="filterSelect" aria-label="Filter by Category">
+                    <option value="all">All Categories</option>
+                    <option value="artifact">Artifacts</option>
+                    <option value="manuscript">Manuscripts</option>
+                    <option value="painting">Paintings</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="searchInput">Search Collection</label>
+                <input type="search" id="searchInput" aria-label="Search the archive" placeholder="Search by name or description..." />
+            </div>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid" aria-live="polite" aria-label="Gallery of cultural heritage images">
+            <!-- Sample items - replace with your actual gallery.js data -->
+            <div class="item" data-category="artifact">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1595433707802-6b2626ef1c91?w=500&q=80" alt="Ancient Pottery Vessel">
+                </div>
+                <div class="item-content">
+                    <h3>Ancient Greek Amphora</h3>
+                    <p>A beautifully preserved ceramic vessel from 5th century BCE, showcasing intricate black-figure geometric patterns and mythological scenes.</p>
+                    <span class="item-category">Artifact</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="manuscript">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&q=80" alt="Illuminated Manuscript">
+                </div>
+                <div class="item-content">
+                    <h3>Illuminated Gospel Book</h3>
+                    <p>Medieval manuscript from the 12th century featuring hand-painted miniatures, gold leaf decoration, and elaborate Gothic calligraphy.</p>
+                    <span class="item-category">Manuscript</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="artifact">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=500&q=80" alt="Egyptian Artifact">
+                </div>
+                <div class="item-content">
+                    <h3>Egyptian Scarab Amulet</h3>
+                    <p>Sacred beetle carved from lapis lazuli, dating to the New Kingdom period, symbolizing rebirth and protection.</p>
+                    <span class="item-category">Artifact</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="painting">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1580130732478-3928a6b22ad2?w=500&q=80" alt="Traditional Indian Painting">
+                </div>
+                <div class="item-content">
+                    <h3>Mughal Miniature Painting</h3>
+                    <p>Exquisite court scene painted with natural pigments on paper, depicting royal procession with intricate details and vibrant colors.</p>
+                    <span class="item-category">Painting</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="manuscript">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&q=80" alt="Ancient Sanskrit Manuscript">
+                </div>
+                <div class="item-content">
+                    <h3>Sanskrit Palm Leaf Manuscript</h3>
+                    <p>Ancient Vedic text inscribed on preserved palm leaves, featuring traditional Devanagari script and religious verses from 800 CE.</p>
+                    <span class="item-category">Manuscript</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="artifact">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=500&q=80" alt="Bronze Buddha Statue">
+                </div>
+                <div class="item-content">
+                    <h3>Bronze Buddha Sculpture</h3>
+                    <p>Serene Gupta period bronze statue depicting Buddha in meditation pose, showcasing masterful lost-wax casting technique.</p>
+                    <span class="item-category">Artifact</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="painting">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1578926288207-a90a5366759d?w=500&q=80" alt="Traditional Asian Art">
+                </div>
+                <div class="item-content">
+                    <h3>Chinese Landscape Scroll</h3>
+                    <p>Song Dynasty ink painting on silk, depicting misty mountains and flowing water with traditional brush techniques.</p>
+                    <span class="item-category">Painting</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="artifact">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1567696911980-2eed69a46042?w=500&q=80" alt="Ancient Coins">
+                </div>
+                <div class="item-content">
+                    <h3>Roman Gold Coins</h3>
+                    <p>Collection of aureus coins from Imperial Rome, featuring portraits of emperors and commemorative designs in pristine condition.</p>
+                    <span class="item-category">Artifact</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="manuscript">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=500&q=80" alt="Medieval Codex">
+                </div>
+                <div class="item-content">
+                    <h3>Byzantine Codex</h3>
+                    <p>Parchment manuscript with purple-dyed pages and silver text, a luxury book format reserved for royal and religious texts.</p>
+                    <span class="item-category">Manuscript</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="painting">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1577083552431-6e5fd01988ec?w=500&q=80" alt="Persian Miniature">
+                </div>
+                <div class="item-content">
+                    <h3>Persian Garden Scene</h3>
+                    <p>Safavid miniature painting depicting a royal garden party with intricate floral patterns and rich jewel-tone pigments.</p>
+                    <span class="item-category">Painting</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="artifact">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1594643781809-248f04ef7222?w=500&q=80" alt="Terracotta Sculpture">
+                </div>
+                <div class="item-content">
+                    <h3>Terracotta Figurine</h3>
+                    <p>Ancient Indus Valley civilization clay sculpture depicting a dancing figure, showcasing early artistic expression from 2500 BCE.</p>
+                    <span class="item-category">Artifact</span>
+                </div>
+            </div>
+
+            <div class="item" data-category="manuscript">
+                <div class="item-image-container">
+                    <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500&q=80" alt="Ancient Arabic Text">
+                </div>
+                <div class="item-content">
+                    <h3>Quran Manuscript</h3>
+                    <p>Mamluk period Quran with elaborate geometric borders and elegant Kufic calligraphy on vellum, adorned with gold illumination.</p>
+                    <span class="item-category">Manuscript</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Dark/Light mode toggle
+        const toggle = document.getElementById('darkModeToggle');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (!prefersDark) {
+            document.body.classList.add('light');
+            toggle.textContent = '🌙 Dark Mode';
+        }
+
+        toggle.addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            toggle.textContent = document.body.classList.contains('light') ? '🌙 Dark Mode' : '☀️ Light Mode';
+        });
+
+        // Search and filter functionality
+        const searchInput = document.getElementById('searchInput');
+        const filterSelect = document.getElementById('filterSelect');
+        const galleryGrid = document.getElementById('galleryGrid');
+        const items = document.querySelectorAll('.item');
+
+        function filterItems() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filterValue = filterSelect.value;
+
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                const category = item.dataset.category;
+
+                const matchesSearch = text.includes(searchTerm);
+                const matchesFilter = filterValue === 'all' || category === filterValue;
+
+                if (matchesSearch && matchesFilter) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterItems);
+        filterSelect.addEventListener('change', filterItems);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Heritage Quiz</title>
+    <style>
+        /* General reset and styling */
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px 40px;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2a3a86;
+            margin-bottom: 30px;
+            letter-spacing: 1.2px;
+        }
+        /* Quiz Question */
+        
+        .quiz-question {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        /* Options */
+        
+        .quiz-options {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 30px;
+        }
+        
+        .quiz-options li {
+            margin-bottom: 12px;
+        }
+        
+        label {
+            cursor: pointer;
+            font-size: 1rem;
+            color: #444;
+            padding: 10px 18px;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            user-select: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        input[type="radio"] {
+            display: none;
+        }
+        
+        input[type="radio"]:checked+label {
+            color: white;
+            background-color: #2a3a86;
+            border-color: #2a3a86;
+            font-weight: bold;
+            box-shadow: 0 0 6px rgba(42, 58, 134, 0.7);
+        }
+        
+        label:hover:not(.disabled) {
+            background-color: #d7defa;
+            border-color: #a3a9f3;
+        }
+        /* Submit Button */
+        
+        #submitBtn {
+            width: 100%;
+            background-color: #2a3a86;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        #submitBtn:hover {
+            background-color: #1d2765;
+        }
+        /* Result */
+        
+        #result {
+            margin-top: 25px;
+            font-size: 1.3rem;
+            text-align: center;
+            font-weight: 600;
+            color: #2a3a86;
+        }
+        /* Disabled state for labels */
+        
+        label.disabled {
+            cursor: default;
+            color: #aaa;
+            background-color: #f0f0f0;
+            border-color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container" role="main" aria-label="Cultural Heritage Quiz">
+        <h1>Cultural Heritage Quiz</h1>
+        <div id="quizContainer" aria-live="polite" aria-atomic="true"></div>
+        <button id="submitBtn" aria-label="Submit Answers">Submit Answers</button>
+        <div id="result" role="alert" aria-live="assertive" aria-atomic="true"></div>
+    </main>
+
+    <script>
+        const quizData = [{
+            question: "Which of the following is an ancient Indian manuscript?",
+            options: ["Rigveda", "The Odyssey", "Magna Carta", "The Tale of Genji"],
+            answer: "Rigveda",
+        }, {
+            question: "What is the primary purpose of an artifact in cultural heritage?",
+            options: ["Decoration", "Historical evidence", "Food", "Sport"],
+            answer: "Historical evidence",
+        }, {
+            question: "Which famous site is known as the 'Lost City of the Incas'?",
+            options: ["Machu Picchu", "Petra", "Taj Mahal", "Great Wall of China"],
+            answer: "Machu Picchu",
+        }, ];
+
+        const quizContainer = document.getElementById("quizContainer");
+        const submitBtn = document.getElementById("submitBtn");
+        const result = document.getElementById("result");
+
+        function buildQuiz() {
+            const output = quizData.map((item, index) => {
+                const optionsHTML = item.options.map((option, i) =>
+                    `<li>
+            <input type="radio" id="q${index}_option${i}" name="question${index}" value="${option}" />
+            <label for="q${index}_option${i}">${option}</label>
+          </li>`
+                ).join('');
+                return `
+          <div class="quiz-question-block" aria-describedby="question${index}_desc">
+            <p class="quiz-question" id="question${index}_desc">${index + 1}. ${item.question}</p>
+            <ul class="quiz-options">${optionsHTML}</ul>
+          </div>
+        `;
+            }).join('');
+            quizContainer.innerHTML = output;
+        }
+
+        function showResults() {
+            let score = 0;
+            quizData.forEach((item, index) => {
+                const selectedOption = document.querySelector(`input[name=question${index}]:checked`);
+                const optionsLabels = document.querySelectorAll(`input[name=question${index}] + label`);
+
+                if (selectedOption && selectedOption.value === item.answer) {
+                    score++;
+                    // Highlight correct answer
+                    optionsLabels.forEach(label => {
+                        if (label.textContent === item.answer) {
+                            label.classList.add("correct");
+                            label.style.backgroundColor = "#4BB543";
+                            label.style.color = "white";
+                        }
+                    });
+                } else {
+                    // Highlight correct answer and user's wrong choice
+                    optionsLabels.forEach(label => {
+                        if (label.textContent === item.answer) {
+                            label.classList.add("correct");
+                            label.style.backgroundColor = "#4BB543";
+                            label.style.color = "white";
+                        }
+                        if (selectedOption && label.htmlFor === selectedOption.id && selectedOption.value !== item.answer) {
+                            label.style.backgroundColor = "#FF6347";
+                            label.style.color = "white";
+                        }
+                    });
+                }
+                // Disable all radio inputs after submission
+                document.querySelectorAll(`input[name=question${index}]`).forEach(input => input.disabled = true);
+                optionsLabels.forEach(label => label.classList.add('disabled'));
+            });
+
+            result.textContent = `You scored ${score} out of ${quizData.length}`;
+            submitBtn.disabled = true;
+            submitBtn.style.backgroundColor = "#888";
+            submitBtn.style.cursor = "default";
+        }
+
+        submitBtn.addEventListener("click", showResults);
+
+        buildQuiz();
+    </script>
+</body>
+
+</html>

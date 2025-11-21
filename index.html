@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cultural Heritage Archives</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(139, 69, 19, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .navbar {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .navbar li a {
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 0.5rem 1.5rem;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .navbar li a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #d4af37;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .navbar li a:hover {
+            color: #fff;
+            border-color: rgba(212, 175, 55, 0.5);
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .navbar li a:hover::after {
+            width: 100%;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+            position: relative;
+            animation: fadeInDown 1s ease;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+            margin: 1.5rem auto 0;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .content-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease 0.3s both;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .content-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        p {
+            font-size: 1.25rem;
+            line-height: 2;
+            color: #e8e8e8;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .decorative-element {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .decorative-element:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+        
+        .decorative-element:nth-child(2) {
+            bottom: 15%;
+            right: 8%;
+            animation-delay: 2s;
+        }
+        
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar ul {
+                gap: 1rem;
+            }
+            .navbar li a {
+                font-size: 0.9rem;
+                padding: 0.4rem 1rem;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .container {
+                margin: 2rem auto;
+                padding: 1.5rem;
+            }
+            .content-box {
+                padding: 2rem;
+            }
+            p {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="decorative-element"></div>
+    <div class="decorative-element"></div>
+
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="archive.html">Archive</a></li>
+            <li><a href="models.html">3D Models</a></li>
+            <li><a href="quiz.html">Quiz</a></li>
+        </ul>
+    </nav>
+
+    <main class="container" role="main">
+        <h1>Welcome to the Cultural Heritage Archives</h1>
+        <div class="content-box">
+            <p>
+                This project aims to preserve and showcase our rich cultural heritage through high-resolution images of artifacts, manuscripts, and paintings, as well as interactive 3D models of historical sites. Explore, learn, and download resources locally.
+            </p>
+        </div>
+    </main>
+</body>
+
+</html>
